@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
       })),
     },
   };
-
+  
   const res = await fetch(`https://${SHOPIFY_DOMAIN}/api/2025-07/graphql.json`, {
     method: "POST",
     headers: {
@@ -45,6 +45,7 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ query, variables }),
     cache: "no-store",
   });
+  console.log("Checkout payload:", JSON.stringify(variables, null, 2));
 
   const json = await res.json();
   console.log("SHOPIFY RESPONSE:", JSON.stringify(json, null, 2));
