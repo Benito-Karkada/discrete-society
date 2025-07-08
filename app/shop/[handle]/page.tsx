@@ -1,6 +1,7 @@
 import { fetchShopifyProductByHandle } from "@/lib/shopify";
 import Image from "next/image";
 import AddToCartButton from "./AddToCartButton";
+import type { Metadata } from "next";
 
 function formatPrice(price: string | number) {
   const n = Number(price);
@@ -10,11 +11,12 @@ function formatPrice(price: string | number) {
 type PageProps = {
   params: {
     handle: string
-  }
+  };
 };
 
 export default async function ProductPage({ params }: PageProps) {
-  const product = await fetchShopifyProductByHandle(params.handle);
+  const { handle } = params;
+  const product = await fetchShopifyProductByHandle(handle);
   if (!product) return <div className="p-12 text-center text-gray-500">Product not found.</div>;
 
   const images = product.images.edges.map((e: any) => e.node.url);
