@@ -7,40 +7,36 @@ type Product = any;
 
 function getAllColors(product: any): string[] {
   if (!product?.variants?.edges) return [];
-  return [
-    ...new Set(
+  return Array.from(
+    new Set(
       product.variants.edges.flatMap((v: any) =>
         (v.node.selectedOptions || [])
           .filter(
             (opt: any) =>
-              opt &&
-              opt.name &&
-              opt.name.trim().toLowerCase() === "color" &&
+              opt?.name?.trim().toLowerCase() === "color" &&
               typeof opt.value === "string"
           )
-          .map((opt: any) => opt.value)
+          .map((opt: any) => opt.value as string)
       )
-    ),
-  ];
+    )
+  );
 }
 
 function getAllSizes(product: any): string[] {
   if (!product?.variants?.edges) return [];
-  return [
-    ...new Set(
+  return Array.from(
+    new Set(
       product.variants.edges.flatMap((v: any) =>
         (v.node.selectedOptions || [])
           .filter(
             (opt: any) =>
-              opt &&
-              opt.name &&
-              opt.name.trim().toLowerCase() === "size" &&
+              opt?.name?.trim().toLowerCase() === "size" &&
               typeof opt.value === "string"
           )
-          .map((opt: any) => opt.value)
+          .map((opt: any) => opt.value as string)
       )
-    ),
-  ];
+    )
+  );
 }
 
 function formatPrice(price: string | number) {
