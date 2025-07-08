@@ -1,15 +1,20 @@
-// app/shop/[handle]/page.tsx
 import { fetchShopifyProductByHandle } from "@/lib/shopify";
 import Image from "next/image";
-import AddToCartButton from "@/components/AddToCartButton";
+import AddToCartButton from "./AddToCartButton";
 
-type PageProps = {
-  params: Promise<{ handle: string }>;
-};
+function formatPrice(amount: string | number) {
+  const n = Number(amount);
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
 
-export default async function ProductPage({ params }: PageProps) {
-  // unwrap the promise
-  const { handle } = await params;
+export default async function ProductPage({
+  params: { handle },
+}: {
+  params: { handle: string };
+}) {
   const product = await fetchShopifyProductByHandle(handle);
 
   if (!product) {
@@ -20,10 +25,11 @@ export default async function ProductPage({ params }: PageProps) {
     );
   }
 
+  // pull images & flatten variants
   const images = product.images.edges.map((e: any) => e.node.url);
   const variants = product.variants.edges.map((v: any) => v.node) as any[];
 
-  // Build your color/size options...
+  // Build color and size availability maps
   type Opt = { value: string; inStock: boolean };
 
   const colorMap = new Map<string, boolean>();
@@ -38,7 +44,7 @@ export default async function ProductPage({ params }: PageProps) {
       );
     }
   });
-  const colorOptions = Array.from(colorMap.entries()).map(
+  const colorOptions: Opt[] = Array.from(colorMap.entries()).map(
     ([value, inStock]) => ({ value, inStock })
   );
 
@@ -54,18 +60,18 @@ export default async function ProductPage({ params }: PageProps) {
       );
     }
   });
-  const sizeOptions = Array.from(sizeMap.entries()).map(
+  const sizeOptions: Opt[] = Array.from(sizeMap.entries()).map(
     ([value, inStock]) => ({ value, inStock })
   );
 
-  // pick first in-stock variant as default
+  // pick the first in-stock variant as the default
   const defaultVariant =
     variants.find((v) => v.availableForSale) ?? variants[0];
 
   return (
     <main className="max-w-4xl mx-auto py-12 text-white">
       <div className="flex flex-col md:flex-row gap-12">
-        {/* Images */}
+        {/* Image gallery (just first image for now) */}
         <div className="flex-1">
           <Image
             src={images[0]}
@@ -76,12 +82,12 @@ export default async function ProductPage({ params }: PageProps) {
           />
         </div>
 
-        {/* Details */}
+        {/* Product details */}
         <div className="flex-1 space-y-4">
           <h1 className="text-3xl font-bold">{product.title}</h1>
           <p className="text-gray-400">{product.description}</p>
 
-          {/* Color */}
+          {/* Color selector */}
           <div>
             <label className="block mb-1">Color</label>
             <select className="w-full p-2 border rounded bg-gray-900 text-white">
@@ -93,7 +99,7 @@ export default async function ProductPage({ params }: PageProps) {
             </select>
           </div>
 
-          {/* Size */}
+          {/* Size selector */}
           <div>
             <label className="block mb-1">Size</label>
             <select className="w-full p-2 border rounded bg-gray-900 text-white">
@@ -107,10 +113,10 @@ export default async function ProductPage({ params }: PageProps) {
 
           {/* Price */}
           <div className="text-xl font-semibold">
-            ${Number(defaultVariant.price.amount).toFixed(2)}
+            ${formatPrice(defaultVariant.price.amount)}
           </div>
 
-          {/* Add to Cart */}
+          {/* Add to Cart or Out of Stock button */}
           {defaultVariant.availableForSale ? (
             <AddToCartButton
               variantId={defaultVariant.id}
