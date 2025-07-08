@@ -1,9 +1,14 @@
-import { fetchShopifyProductByHandle } from "@/lib/shopify";
+// app/shop/[handle]/page.tsx
+import React from "react";
 import Image from "next/image";
-import AddToCartButton from "./AddToCartButton";
+import { fetchShopifyProductByHandle } from "@/lib/shopify";
+import AddToCartButton from "@/components/AddToCartButton";
 
-function formatPrice(amount: string | number) {
-  const n = Number(amount);
+type Params = { handle: string };
+type SearchParams = Record<string, string | string[] | undefined>;
+
+function formatPrice(price: string | number) {
+  const n = Number(price);
   return n.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -11,12 +16,17 @@ function formatPrice(amount: string | number) {
 }
 
 export default async function ProductPage({
-  params: { handle },
+  params,
+  searchParams,
 }: {
-  params: { handle: string };
+  params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const product = await fetchShopifyProductByHandle(handle);
+  // unwrap the promise
+  const { handle } = await params;
 
+  // fetch the product server-side
+  const product = await fetchShopifyProductByHandle(handle);
   if (!product) {
     return (
       <div className="p-12 text-center text-gray-500">
@@ -25,11 +35,11 @@ export default async function ProductPage({
     );
   }
 
-  // pull images & flatten variants
+  // pull out images & variant nodes
   const images = product.images.edges.map((e: any) => e.node.url);
   const variants = product.variants.edges.map((v: any) => v.node) as any[];
 
-  // Build color and size availability maps
+  // build availability maps
   type Opt = { value: string; inStock: boolean };
 
   const colorMap = new Map<string, boolean>();
@@ -64,14 +74,14 @@ export default async function ProductPage({
     ([value, inStock]) => ({ value, inStock })
   );
 
-  // pick the first in-stock variant as the default
+  // pick a default in-stock variant (fallback to first if none are available)
   const defaultVariant =
-    variants.find((v) => v.availableForSale) ?? variants[0];
+    variants.find((v) => v.availableForSale) || variants[0];
 
   return (
     <main className="max-w-4xl mx-auto py-12 text-white">
       <div className="flex flex-col md:flex-row gap-12">
-        {/* Image gallery (just first image for now) */}
+        {/* Gallery */}
         <div className="flex-1">
           <Image
             src={images[0]}
@@ -82,67 +92,60 @@ export default async function ProductPage({
           />
         </div>
 
-        {/* Product details */}
-        <div className="flex-1 space-y-4">
-          <h1 className="text-3xl font-bold">{product.title}</h1>
-          <p className="text-gray-400">{product.description}</p>
+        {/* Details */}
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
+          <p className="mb-6 text-gray-400">{product.description}</p>
 
           {/* Color selector */}
-          <div>
-            <label className="block mb-1">Color</label>
+          <div className="mb-4">
+            <label className="block mb-1 text-sm">Color</label>
             <select className="w-full p-2 border rounded bg-gray-900 text-white">
               {colorOptions.map(({ value, inStock }) => (
                 <option key={value} value={value} disabled={!inStock}>
-                  {value} {inStock ? "" : "(Out of Stock)"}
+                  {value}
+                  {!inStock && " (Out of stock)"}
                 </option>
               ))}
             </select>
           </div>
 
           {/* Size selector */}
-          <div>
-            <label className="block mb-1">Size</label>
+          <div className="mb-4">
+            <label className="block mb-1 text-sm">Size</label>
             <select className="w-full p-2 border rounded bg-gray-900 text-white">
               {sizeOptions.map(({ value, inStock }) => (
                 <option key={value} value={value} disabled={!inStock}>
-                  {value} {inStock ? "" : "(Out of Stock)"}
+                  {value}
+                  {!inStock && " (Out of stock)"}
                 </option>
               ))}
             </select>
           </div>
 
           {/* Price */}
-          <div className="text-xl font-semibold">
+          <div className="mb-4 text-xl font-semibold">
             ${formatPrice(defaultVariant.price.amount)}
           </div>
 
-          {/* Add to Cart or Out of Stock button */}
-          {defaultVariant.availableForSale ? (
-            <AddToCartButton
-              variantId={defaultVariant.id}
-              title={product.title}
-              handle={handle}
-              price={defaultVariant.price.amount}
-              image={images[0]}
-              size={
-                defaultVariant.selectedOptions.find(
-                  (o: any) => o.name.toLowerCase() === "size"
-                )?.value || ""
-              }
-              color={
-                defaultVariant.selectedOptions.find(
-                  (o: any) => o.name.toLowerCase() === "color"
-                )?.value || ""
-              }
-            />
-          ) : (
-            <button
-              disabled
-              className="w-full py-2 bg-gray-700 text-gray-400 rounded cursor-not-allowed"
-            >
-              Out of Stock
-            </button>
-          )}
+          {/* Client-side Add to Cart */}
+          <AddToCartButton
+            variantId={defaultVariant.id}
+            title={product.title}
+            handle={handle}
+            price={defaultVariant.price.amount}
+            image={images[0]}
+            size={
+              defaultVariant.selectedOptions.find(
+                (o: any) => o.name.toLowerCase() === "size"
+              )?.value || ""
+            }
+            color={
+              defaultVariant.selectedOptions.find(
+                (o: any) => o.name.toLowerCase() === "color"
+              )?.value || ""
+            }
+          />
         </div>
       </div>
     </main>
