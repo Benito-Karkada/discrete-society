@@ -1,50 +1,67 @@
 import { fetchShopifyProductByHandle } from "@/lib/shopify";
 import Image from "next/image";
 import AddToCartButton from "./AddToCartButton";
-import type { Metadata } from "next";
 
 function formatPrice(price: string | number) {
   const n = Number(price);
-  return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return n.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
-type PageProps = {
-  params: {
-    handle: string
-  };
-};
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ handle: string }>
+}) {
+  const { handle } = await params;
 
-export default async function ProductPage({ params }: PageProps) {
-  const { handle } = params;
   const product = await fetchShopifyProductByHandle(handle);
-  if (!product) return <div className="p-12 text-center text-gray-500">Product not found.</div>;
+
+  if (!product) {
+    return (
+      <div className="p-12 text-center text-gray-500">Product not found.</div>
+    );
+  }
 
   const images = product.images.edges.map((e: any) => e.node.url);
-  const variants = (product.variants.edges.map((v: any) => v.node) as any[]);
+  const variants = product.variants.edges.map((v: any) => v.node) as any[];
 
-  // Build fully-typed option lists:
   type Opt = { value: string; inStock: boolean };
 
   const colorMap = new Map<string, boolean>();
-  variants.forEach(v => {
-    const opt = v.selectedOptions.find((o: any) => o.name.toLowerCase() === "color");
+  variants.forEach((v) => {
+    const opt = v.selectedOptions.find(
+      (o: any) => o.name.toLowerCase() === "color"
+    );
     if (opt && typeof opt.value === "string") {
-      // OR together availability in case multiple variants share the same color
-      colorMap.set(opt.value, (colorMap.get(opt.value) || false) || v.availableForSale);
+      colorMap.set(
+        opt.value,
+        (colorMap.get(opt.value) || false) || v.availableForSale
+      );
     }
   });
-  const colorOptions: Opt[] = Array.from(colorMap.entries()).map(([value, inStock]) => ({ value, inStock }));
+  const colorOptions: Opt[] = Array.from(colorMap.entries()).map(
+    ([value, inStock]) => ({ value, inStock })
+  );
 
   const sizeMap = new Map<string, boolean>();
-  variants.forEach(v => {
-    const opt = v.selectedOptions.find((o: any) => o.name.toLowerCase() === "size");
+  variants.forEach((v) => {
+    const opt = v.selectedOptions.find(
+      (o: any) => o.name.toLowerCase() === "size"
+    );
     if (opt && typeof opt.value === "string") {
-      sizeMap.set(opt.value, (sizeMap.get(opt.value) || false) || v.availableForSale);
+      sizeMap.set(
+        opt.value,
+        (sizeMap.get(opt.value) || false) || v.availableForSale
+      );
     }
   });
-  const sizeOptions: Opt[] = Array.from(sizeMap.entries()).map(([value, inStock]) => ({ value, inStock }));
+  const sizeOptions: Opt[] = Array.from(sizeMap.entries()).map(
+    ([value, inStock]) => ({ value, inStock })
+  );
 
-  // Just pick a default variant for the AddToCartButton
   const defaultVariant = variants[0];
 
   return (
@@ -63,7 +80,6 @@ export default async function ProductPage({ params }: PageProps) {
           <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
           <p className="mb-6 text-gray-400">{product.description}</p>
 
-          {/* COLOR SELECT */}
           <div className="mb-4">
             <label className="block mb-1">Color</label>
             <select className="w-full p-2 border rounded">
@@ -75,7 +91,6 @@ export default async function ProductPage({ params }: PageProps) {
             </select>
           </div>
 
-          {/* SIZE SELECT */}
           <div className="mb-4">
             <label className="block mb-1">Size</label>
             <select className="w-full p-2 border rounded">
@@ -94,17 +109,17 @@ export default async function ProductPage({ params }: PageProps) {
           <AddToCartButton
             variantId={defaultVariant.id}
             title={product.title}
-            handle={params.handle}
+            handle={handle}
             price={defaultVariant.price.amount}
             image={images[0]}
             size={
-              defaultVariant.selectedOptions.find((o: any) =>
-                o.name.toLowerCase() === "size"
+              defaultVariant.selectedOptions.find(
+                (o: any) => o.name.toLowerCase() === "size"
               )?.value || ""
             }
             color={
-              defaultVariant.selectedOptions.find((o: any) =>
-                o.name.toLowerCase() === "color"
+              defaultVariant.selectedOptions.find(
+                (o: any) => o.name.toLowerCase() === "color"
               )?.value || ""
             }
           />
