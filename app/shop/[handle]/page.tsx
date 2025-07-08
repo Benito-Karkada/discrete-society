@@ -2,7 +2,7 @@
 import React from "react";
 import Image from "next/image";
 import { fetchShopifyProductByHandle } from "@/lib/shopify";
-import AddToCartButton from "@/components/AddToCartButton";
+import AddToCartButton from "./AddToCartButton";
 
 type Params = { handle: string };
 type SearchParams = Record<string, string | string[] | undefined>;
