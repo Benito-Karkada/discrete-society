@@ -7,7 +7,13 @@ function formatPrice(price: string | number) {
   return n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-export default async function ProductPage({ params }: { params: { handle: string } }) {
+type PageProps = {
+  params: {
+    handle: string
+  }
+};
+
+export default async function ProductPage({ params }: PageProps) {
   const product = await fetchShopifyProductByHandle(params.handle);
   if (!product) return <div className="p-12 text-center text-gray-500">Product not found.</div>;
 
