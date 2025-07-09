@@ -8,9 +8,9 @@ import { useCart } from "@/context/CartContext";
 
 export default function Home() {
   const [showPopup, setShowPopup] = useState(false);
-  const [drops, setDrops]       = useState<any[]>([]);
-  const [quick, setQuick]       = useState<any | null>(null);
-  const { addToCart }           = useCart();
+  const [drops, setDrops] = useState<any[]>([]);
+  const [quick, setQuick] = useState<any | null>(null);
+  const { addToCart } = useCart();
 
   // — SMS Popup logic
   useEffect(() => {
@@ -18,6 +18,7 @@ export default function Home() {
       setShowPopup(true);
     }
   }, []);
+
   const dismissPopup = () => {
     localStorage.setItem("ds-popup-dismissed", "true");
     setShowPopup(false);
@@ -33,6 +34,23 @@ export default function Home() {
 
   return (
     <main className="bg-black text-white min-h-screen font-sans flex flex-col">
+      <style>{`
+        .spin-slow {
+          animation: spin 6s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotateY(0deg); }
+          to { transform: rotateY(360deg); }
+        }
+
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 20s linear infinite;
+        }
+      `}</style>
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center h-screen text-center px-4">
@@ -41,7 +59,7 @@ export default function Home() {
           alt="Discrete Society Logo"
           width={300}
           height={300}
-          className="mb-6 object-contain"
+          className="mb-6 object-contain spin-slow"
           priority
         />
         <h1 className="text-6xl font-bold tracking-tight mb-4">
@@ -58,14 +76,35 @@ export default function Home() {
         </Link>
       </section>
 
+      <div className="flex animate-marquee whitespace-nowrap text-4xl py-2 items-center">
+        <div className="flex items-center">
+          {[...Array(10)].map((_, i) => (
+            <span key={i} className="flex items-center mx-4 gap-2">
+              <span className="opacity-20">DS</span>
+              <span className="opacity-20">·</span>
+              <Image src="/logo.png" alt="Logo" width={30} height={30} className="inline-block" />
+              <span className="opacity-20">·</span>
+            </span>
+          ))}
+        </div>
+        <div className="flex items-center">
+          {[...Array(10)].map((_, i) => (
+            <span key={i} className="flex items-center mx-4 gap-2">
+              <span className="opacity-20">DS</span>
+              <span className="opacity-20">·</span>
+              <Image src="/logo.png" alt="Logo" width={30} height={30} className="inline-block" />
+              <span className="opacity-20">·</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+
       {/* New Drops */}
       <section className="px-8 py-12">
         <h2 className="text-3xl mb-6 font-semibold text-center">New Drops</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <NewDropsGrid
-            products={drops}
-            onQuickView={(p) => setQuick(p)}
-          />
+          <NewDropsGrid products={drops} onQuickView={(p) => setQuick(p)} />
         </div>
       </section>
 
@@ -82,23 +121,41 @@ export default function Home() {
       <footer className="mt-auto px-8 py-4 border-t border-gray-800 text-sm text-gray-600 text-center">
         © {new Date().getFullYear()} Discrete Society. All rights reserved.
         <div className="flex items-center justify-center gap-4 mt-2">
-          <a href="https://instagram.com/discrete_.society" target="_blank" rel="noopener noreferrer">
-            <Image src="/instagram.svg" alt="Instagram" width={24} height={24} className="hover:opacity-70 transition" />
+          <a
+            href="https://instagram.com/discrete_.society"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="/instagram.svg"
+              alt="Instagram"
+              width={24}
+              height={24}
+              className="hover:opacity-70 transition"
+            />
           </a>
-          <a href="https://tiktok.com/@66nanaaaa" target="_blank" rel="noopener noreferrer">
-            <Image src="/tik-tok.png" alt="TikTok" width={24} height={24} className="hover:opacity-70 transition" />
+          <a
+            href="https://tiktok.com/@66nanaaaa"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Image
+              src="/tik-tok.png"
+              alt="TikTok"
+              width={24}
+              height={24}
+              className="hover:opacity-70 transition"
+            />
           </a>
         </div>
       </footer>
 
       {/* Quick-View Overlay */}
       {quick && quick.images?.edges?.length > 0 && (
-        /* 1) clicking the dark backdrop will call setQuick(null) */
         <div
           onClick={() => setQuick(null)}
           className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4"
         >
-          {/* 2) stopPropagation here so clicks inside don’t close */}
           <div
             onClick={(e) => e.stopPropagation()}
             className="relative max-w-3xl w-full"
@@ -126,7 +183,6 @@ export default function Home() {
         </div>
       )}
 
-
       {/* SMS Popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-40 p-4">
@@ -134,7 +190,9 @@ export default function Home() {
             <button
               onClick={dismissPopup}
               className="absolute top-2 right-2 text-xl"
-            >×</button>
+            >
+              ×
+            </button>
             <h2 className="text-center text-lg font-bold mb-2">UNLOCK</h2>
             <h1 className="text-center text-3xl font-bold mb-2">10% OFF</h1>
             <p className="text-center mb-4">YOUR ORDER</p>
@@ -149,15 +207,18 @@ export default function Home() {
             <button
               onClick={dismissPopup}
               className="w-full bg-black text-white py-2 rounded mb-2"
-            >Sign up now</button>
+            >
+              Sign up now
+            </button>
             <button
               onClick={dismissPopup}
               className="w-full text-center text-sm text-gray-500"
-            >No Thanks</button>
+            >
+              No Thanks
+            </button>
           </div>
         </div>
       )}
-
     </main>
   );
 }
