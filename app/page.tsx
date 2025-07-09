@@ -76,7 +76,7 @@ export default function Home() {
         </Link>
       </section>
 
-      <div className="flex animate-marquee whitespace-nowrap text-4xl py-2 items-center">
+      <div className="relative w-full overflow-hidden bg-black text-gray-700 uppercase">
         <div className="flex items-center">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="flex items-center mx-4 gap-2">
