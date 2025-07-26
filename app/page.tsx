@@ -33,7 +33,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="bg-black text-white min-h-screen font-sans flex flex-col">
+    <main className="bg-black text-white min-h-screen font-sans flex flex-col overflow-x-hidden">
       <style>{`
         .spin-slow {
           animation: spin 6s linear infinite;
@@ -76,7 +76,7 @@ export default function Home() {
         </Link>
       </section>
 
-      <div className="relative w-full overflow-hidden bg-black text-gray-700 uppercase">
+      <div className="flex animate-marquee whitespace-nowrap text-4xl py-2 items-center">
         <div className="flex items-center">
           {[...Array(10)].map((_, i) => (
             <span key={i} className="flex items-center mx-4 gap-2">
