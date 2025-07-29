@@ -8,7 +8,7 @@ export default function Navbar() {
   const { cart, toggleCartOpen } = useCart();
 
   return (
-    <nav className="bg-black text-white px-8 py-4 flex justify-between items-center border-b border-gray-800">
+    <nav className="section-dark px-8 py-4 flex justify-between items-center border-b border-gray-800">
       <Link href="/" className="flex items-center gap-2">
         <Image
           src="/logo.png"

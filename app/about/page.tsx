@@ -1,6 +1,6 @@
 export default function About() {
   return (
-    <main className="bg-black text-white min-h-screen p-8">
+    <main className="section-dark min-h-screen p-8">
       <h1 className="text-4xl font-bold mb-4">About Us</h1>
       <p className="text-gray-400 max-w-2xl">
         Discrete Society is an underground streetwear brand focused on clean design,

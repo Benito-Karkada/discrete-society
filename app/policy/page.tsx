@@ -1,6 +1,6 @@
 export default function Policy() {
   return (
-    <main className="bg-black text-white min-h-screen px-8 py-12 font-sans">
+    <main className="section-dark min-h-screen px-8 py-12 font-sans">
       <h1 className="text-3xl font-bold mb-8">Store Policies</h1>
 
       <section className="mb-6">

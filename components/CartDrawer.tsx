@@ -19,7 +19,7 @@ export default function CartDrawer() {
     />
 
     {/* drawer */}
-    <div className="fixed top-0 right-0 w-96 h-full bg-black text-white z-50 shadow-2xl flex flex-col p-6">
+    <div className="section-dark fixed top-0 right-0 w-96 h-full z-50 shadow-2xl flex flex-col p-6">
       <button className="self-end mb-4" onClick={toggleCartOpen}>Close</button>
       <h2 className="text-2xl mb-4">Your Cart</h2>
 

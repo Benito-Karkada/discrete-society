@@ -50,24 +50,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="bg-black text-white min-h-screen font-sans flex flex-col overflow-x-hidden">
-      <style>{`
-        .spin-slow {
-          animation: spin 6s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotateY(0deg); }
-          to { transform: rotateY(360deg); }
-        }
-
-        @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
-        }
-        .animate-marquee {
-          animation: marquee 20s linear infinite;
-        }
-      `}</style>
+    <main className="section-dark min-h-screen font-sans flex flex-col overflow-x-hidden">
 
       {/* Hero */}
       <section className="flex flex-col items-center justify-center h-screen text-center px-4">
