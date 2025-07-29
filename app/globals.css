@@ -1,19 +1,15 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: sans-serif;
+  @apply bg-black text-white;
+}
+
+.section-light {
+  @apply bg-white text-black;
+}
+
+.section-dark {
+  @apply bg-black text-white;
 }
