@@ -1,63 +1,98 @@
 "use client";
-
 import { useState } from "react";
 
 export default function ComingSoon() {
   const [phone, setPhone] = useState("");
-  const [countryCode, setCountryCode] = useState("+1");
-  const [submitted, setSubmitted] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [unlockVisible, setUnlockVisible] = useState(false);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
   async function handleSignup() {
-    const fullNumber = phone.startsWith("+") ? phone : `${countryCode}${phone}`;
+    const fullNumber = `+1${phone.replace(/\D/g, "")}`;
     try {
-      await fetch("/api/subscribe", {
+      const res = await fetch("/api/subscribe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: fullNumber }),
       });
-      setSubmitted(true);
+      if (res.ok) setSuccess(true);
     } catch (err) {
-      console.error("Failed to subscribe:", err);
+      console.error(err);
+    }
+  }
+
+  async function handleUnlock() {
+    const res = await fetch("/api/unlock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      setError("Incorrect password.");
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center text-white p-6 text-center">
-      <h1 className="text-4xl font-bold mb-4">Something Big Is Coming</h1>
-      <p className="mb-6 text-gray-400">Join the SMS list to get first access.</p>
+    <div className="flex items-center justify-center min-h-screen bg-black text-white">
+      <div className="bg-white text-black p-8 rounded-lg shadow-lg max-w-sm w-full text-center">
+        <h1 className="text-3xl font-bold mb-2">COMING SOON</h1>
+        <p className="text-gray-700 mb-6">Sign up to get early access & 10% off</p>
 
-      {!submitted ? (
-        <div className="bg-white text-black p-6 rounded max-w-sm w-full">
-          <div className="flex gap-2 mb-3">
-            <select
-              value={countryCode}
-              onChange={(e) => setCountryCode(e.target.value)}
-              className="w-24 p-2 border rounded"
+        {!success ? (
+          <>
+            <div className="flex items-center mb-4 border rounded overflow-hidden">
+              <span className="bg-gray-200 px-3 py-2 text-gray-700">+1</span>
+              <input
+                type="text"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone number"
+                className="flex-1 p-2 outline-none"
+              />
+            </div>
+            <button
+              onClick={handleSignup}
+              className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
             >
-              <option value="+1">+1</option>
-              <option value="+44">+44</option>
-              <option value="+91">+91</option>
-            </select>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="Phone number"
-              className="flex-1 p-2 border rounded"
-            />
-          </div>
-          <button
-            onClick={handleSignup}
-            className="w-full bg-black text-white py-2 rounded"
-          >
-            Join SMS List
-          </button>
+              Sign Up
+            </button>
+          </>
+        ) : (
+          <p className="text-green-600 font-semibold">You're signed up!</p>
+        )}
+
+        {/* Admin Unlock */}
+        <div className="mt-6">
+          {!unlockVisible ? (
+            <button
+              onClick={() => setUnlockVisible(true)}
+              className="text-xs text-gray-500 hover:text-gray-800 underline"
+            >
+              Admin Unlock
+            </button>
+          ) : (
+            <div className="mt-2">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                className="w-full p-2 border rounded mb-2"
+              />
+              {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+              <button
+                onClick={handleUnlock}
+                className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
+              >
+                Unlock
+              </button>
+            </div>
+          )}
         </div>
-      ) : (
-        <p className="text-green-400 font-semibold mt-4">
-          You're on the list. Stay tuned.
-        </p>
-      )}
+      </div>
     </div>
   );
 }
