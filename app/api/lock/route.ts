@@ -1,22 +1,26 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { createClient } from "redis";
 
 export async function POST(req: Request) {
-  const { locked, password } = await req.json();
-  const adminPassword = process.env.ADMIN_PASSWORD;
+  try {
+    const { locked, password } = await req.json();
 
-  if (!adminPassword) {
-    console.error("ADMIN_PASSWORD not set in env");
-    return NextResponse.json({ success: false, message: "Server misconfigured" }, { status: 500 });
+    if (password !== process.env.ADMIN_PASSWORD) {
+      return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
+    }
+
+    const client = createClient({
+      url: process.env.REDIS_URL,
+    });
+    await client.connect();
+
+    await client.set("site-locked", locked ? "true" : "false");
+
+    await client.disconnect();
+
+    return NextResponse.json({ success: true, locked });
+  } catch (err) {
+    console.error("Lock API error:", err);
+    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
   }
-
-  if (password !== adminPassword) {
-    return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
-  }
-
-  const file = path.join(process.cwd(), "lock.json");
-  fs.writeFileSync(file, JSON.stringify({ locked }, null, 2));
-
-  return NextResponse.json({ success: true, locked });
 }

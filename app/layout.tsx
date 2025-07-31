@@ -4,28 +4,32 @@ import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 import CartDrawer from "components/CartDrawer";
 import ComingSoon from "@/components/ComingSoon";
-import { useState, useEffect } from "react";
-import LockButton from "components/LockButton";  
-import { headers } from "next/headers";
-
-async function checkLock() {
-  const h = headers();
-  const host = (await h).get("host");
-  const protocol = process.env.VERCEL ? "https" : "http";
-  const res = await fetch(`${protocol}://${host}/api/status`, { cache: "no-store" });
-  const data = await res.json();
-  return data.locked;
-}
-
-
+import LockButton from "@/components/LockButton";
+import { createClient } from "redis";
 
 export const metadata: Metadata = {
   title: "Discrete Society",
   description: "Underground streetwear brand.",
 };
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const locked = await checkLock();
+async function getLockState() {
+  const client = createClient({
+    url: process.env.REDIS_URL,  // use your Marketplace Redis URL
+  });
+  await client.connect();
+
+  const locked = await client.get("site-locked");
+  await client.disconnect();
+
+  return locked === "true";
+}
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const locked = await getLockState();
 
   return (
     <html lang="en">
@@ -37,7 +41,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Navbar />
             <CartDrawer />
             {children}
-            <LockButton />  
+            <LockButton />
           </CartProvider>
         )}
       </body>

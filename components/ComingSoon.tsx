@@ -35,7 +35,6 @@ export default function ComingSoon() {
     }
   }
 
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-black text-white">
       <div className="bg-white text-black p-8 rounded-lg shadow-lg max-w-sm w-full text-center">

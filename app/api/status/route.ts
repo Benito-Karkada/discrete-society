@@ -1,14 +1,8 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextResponse } from 'next/server';
+import { getRedis } from '@/lib/redis';
 
 export async function GET() {
-  const file = path.join(process.cwd(), "lock.json");
-
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, JSON.stringify({ locked: true }, null, 2));
-  }
-
-  const data = JSON.parse(fs.readFileSync(file, "utf8"));
-  return NextResponse.json(data);
+  const redis = await getRedis();
+  const locked = await redis.get('site_locked');
+  return NextResponse.json({ locked: locked === 'true' });
 }
