@@ -23,10 +23,10 @@ export default function ComingSoon() {
   }
 
   async function handleUnlock() {
-    const res = await fetch("/api/unlock", {
+    const res = await fetch("/api/lock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ password }),
+      body: JSON.stringify({ locked: false, password }),
     });
     if (res.ok) {
       window.location.reload();
@@ -34,6 +34,7 @@ export default function ComingSoon() {
       setError("Incorrect password.");
     }
   }
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black text-white">

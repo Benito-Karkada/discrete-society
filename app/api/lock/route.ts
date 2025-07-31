@@ -6,11 +6,17 @@ export async function POST(req: Request) {
   const { locked, password } = await req.json();
   const adminPassword = process.env.ADMIN_PASSWORD;
 
+  if (!adminPassword) {
+    console.error("ADMIN_PASSWORD not set in env");
+    return NextResponse.json({ success: false, message: "Server misconfigured" }, { status: 500 });
+  }
+
   if (password !== adminPassword) {
     return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
   }
 
   const file = path.join(process.cwd(), "lock.json");
-  fs.writeFileSync(file, JSON.stringify({ locked }));
+  fs.writeFileSync(file, JSON.stringify({ locked }, null, 2));
+
   return NextResponse.json({ success: true, locked });
 }
