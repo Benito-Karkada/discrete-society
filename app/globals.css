@@ -1,19 +1,63 @@
 @import "tailwindcss";
 
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root color variables for easy theming */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-bg-dark: #000000;
+  --color-text-light: #ffffff;
+  --color-bg-light: #ffffff;
+  --color-text-dark: #111111;
+  --color-accent: #e50914; 
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Default site theme */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: sans-serif;
+  @apply font-sans;
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+}
+
+/* Dark section */
+.section-dark {
+  background-color: var(--color-bg-dark);
+  color: var(--color-text-light);
+}
+
+/* Light section */
+.section-light {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-dark);
+}
+
+/* Accent text */
+.text-accent {
+  color: var(--color-accent);
+}
+
+/* Accent background */
+.bg-accent {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Spinning logo animation */
+.spin-slow {
+  animation: spin 6s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+/* Marquee animation */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 20s linear infinite;
 }

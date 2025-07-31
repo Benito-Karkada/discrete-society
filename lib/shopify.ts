@@ -1,5 +1,5 @@
-const SHOPIFY_DOMAIN = process.env.NEXT_PUBLIC_SHOPIFY_DOMAIN!;
-const SHOPIFY_TOKEN = process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN!;
+const SHOPIFY_DOMAIN = process.env.SHOPIFY_STORE_DOMAIN!;
+const SHOPIFY_TOKEN = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN!;
 
 export async function fetchNewDrops() {
   const query = `
