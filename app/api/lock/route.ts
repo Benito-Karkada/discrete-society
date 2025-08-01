@@ -1,4 +1,10 @@
 import { NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL!,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+});
 
 export async function POST(req: Request) {
   const { locked, password } = await req.json();
@@ -7,22 +13,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
   }
 
-  const res = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      items: [{ operation: "upsert", key: "locked", value: locked }],
-    }),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error("Edge Config Write Error:", err);
-    return NextResponse.json({ success: false, error: "Failed to update" }, { status: 500 });
-  }
+  await redis.set("locked", locked ? "true" : "false");
+  console.log("Set locked to:", locked);
 
   return NextResponse.json({ success: true, locked });
+}
+
+export async function GET() {
+  const state = await redis.get<string>("locked");
+  return NextResponse.json({ locked: state !== "false" }); // default locked unless explicitly false
 }
