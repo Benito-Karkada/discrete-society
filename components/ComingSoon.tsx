@@ -4,9 +4,11 @@ import { useState } from "react";
 export default function ComingSoon() {
   const [phone, setPhone] = useState("");
   const [success, setSuccess] = useState(false);
+
   const [unlockVisible, setUnlockVisible] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSignup() {
     const fullNumber = `+1${phone.replace(/\D/g, "")}`;
@@ -23,15 +25,22 @@ export default function ComingSoon() {
   }
 
   async function handleUnlock() {
+    setLoading(true);
+    setError("");
+
     const res = await fetch("/api/lock", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ locked: false, password }),
     });
+
+    setLoading(false);
+
     if (res.ok) {
       window.location.reload();
     } else {
-      setError("Incorrect password.");
+      const data = await res.json();
+      setError(data.message || "Incorrect password.");
     }
   }
 
@@ -85,9 +94,10 @@ export default function ComingSoon() {
               {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
               <button
                 onClick={handleUnlock}
+                disabled={loading}
                 className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
               >
-                Unlock
+                {loading ? "Unlocking..." : "Unlock"}
               </button>
             </div>
           )}

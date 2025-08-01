@@ -1,26 +1,28 @@
 import { NextResponse } from "next/server";
-import { createClient } from "redis";
 
 export async function POST(req: Request) {
-  try {
-    const { locked, password } = await req.json();
+  const { locked, password } = await req.json();
 
-    if (password !== process.env.ADMIN_PASSWORD) {
-      return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
-    }
-
-    const client = createClient({
-      url: process.env.REDIS_URL,
-    });
-    await client.connect();
-
-    await client.set("site-locked", locked ? "true" : "false");
-
-    await client.disconnect();
-
-    return NextResponse.json({ success: true, locked });
-  } catch (err) {
-    console.error("Lock API error:", err);
-    return NextResponse.json({ success: false, message: "Server error" }, { status: 500 });
+  if (password !== process.env.ADMIN_PASSWORD) {
+    return NextResponse.json({ success: false, message: "Invalid password" }, { status: 401 });
   }
+
+  const res = await fetch(`https://api.vercel.com/v1/edge-config/${process.env.EDGE_CONFIG_ID}/items`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${process.env.VERCEL_API_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      items: [{ operation: "upsert", key: "locked", value: locked }],
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Edge Config Write Error:", err);
+    return NextResponse.json({ success: false, error: "Failed to update" }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true, locked });
 }

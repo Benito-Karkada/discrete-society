@@ -4,24 +4,18 @@ import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 import CartDrawer from "components/CartDrawer";
 import ComingSoon from "@/components/ComingSoon";
-import LockButton from "@/components/LockButton";
-import { createClient } from "redis";
+import LockButton from "components/LockButton";
 
 export const metadata: Metadata = {
   title: "Discrete Society",
   description: "Underground streetwear brand.",
 };
 
-async function getLockState() {
-  const client = createClient({
-    url: process.env.REDIS_URL,  // use your Marketplace Redis URL
-  });
-  await client.connect();
-
-  const locked = await client.get("site-locked");
-  await client.disconnect();
-
-  return locked === "true";
+async function checkLock() {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const res = await fetch(`${baseUrl}/api/status`, { cache: "no-store" });
+  const data = await res.json();
+  return data.locked;
 }
 
 export default async function RootLayout({
@@ -29,7 +23,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const locked = await getLockState();
+  const locked = await checkLock();
 
   return (
     <html lang="en">

@@ -1,80 +1,57 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function LockButton() {
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [showInput, setShowInput] = useState(false);
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [locked, setLocked] = useState<boolean | null>(null);
-
-  // Fetch current lock state to decide what to show
-  useEffect(() => {
-    fetch("/api/status")
-      .then((res) => res.json())
-      .then((data) => setLocked(data.locked))
-      .catch(() => setLocked(false));
-  }, []);
 
   async function handleLock() {
     setLoading(true);
     setError("");
 
-    try {
-      const res = await fetch("/api/lock", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locked: true, password }),
-      });
+    const res = await fetch("/api/lock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locked: true, password }),
+    });
 
-      if (res.ok) {
-        window.location.reload();
-      } else {
-        const data = await res.json();
-        setError(data.message || "Failed to lock site");
-      }
-    } catch (err) {
-      console.error("LockButton error:", err);
-      setError("Server error");
-    } finally {
-      setLoading(false);
+    setLoading(false);
+
+    if (res.ok) {
+      window.location.reload();
+    } else {
+      const data = await res.json();
+      setError(data.message || "Failed to lock");
     }
   }
 
-  if (locked === null) return null; // wait until we know the state
-  if (locked) return null; // don't show anything if the site is locked
-
   return (
     <div className="fixed bottom-4 right-4 z-50">
-      {!showPrompt ? (
+      {!showInput ? (
         <button
-          onClick={() => setShowPrompt(true)}
-          className="bg-black text-white px-4 py-2 rounded shadow hover:bg-gray-800"
+          onClick={() => setShowInput(true)}
+          className="bg-black text-white px-3 py-2 rounded shadow-lg border border-gray-700 hover:bg-gray-800"
         >
-          🔒 Lock
+          🔒 Lock Site
         </button>
       ) : (
-        <div className="bg-white text-black p-4 rounded shadow w-64">
+        <div className="bg-white text-black p-4 rounded shadow-lg w-64">
           <input
             type="password"
             placeholder="Admin password"
+            className="w-full border p-2 mb-2 rounded"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-2 mb-2 rounded"
           />
           {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
           <button
             onClick={handleLock}
             disabled={loading}
-            className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700"
+            className="w-full bg-black text-white py-2 rounded hover:bg-gray-800 transition"
           >
-            Lock Site
-          </button>
-          <button
-            onClick={() => setShowPrompt(false)}
-            className="mt-2 text-xs text-gray-500 hover:text-gray-800 underline"
-          >
-            Cancel
+            {loading ? "Locking..." : "Confirm Lock"}
           </button>
         </div>
       )}
