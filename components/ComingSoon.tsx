@@ -21,19 +21,34 @@ export default function ComingSoon() {
 
   async function doUnlock() {
     setLoading(true);
-    const res = await fetch("/api/lock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ locked: false, password: pw }),
-    });
-    setLoading(false);
+    setErr("");
 
-    if (res.ok) window.location.reload();
-    else {
-      const { message } = await res.json();
-      setErr(message);
+    try {
+      console.log("→ Sending unlock request…");
+      const res = await fetch("/api/lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locked: false, password: pw }),
+      });
+      console.log("← Got response:", res.status);
+
+      setLoading(false);
+
+      if (res.ok) {
+        console.log("✔ Unlock succeeded, reloading");
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        console.error("✖ Unlock failed:", data);
+        setErr(data.message || "Incorrect password.");
+      }
+    } catch (err) {
+      console.error("‼ Network or server error:", err);
+      setErr("Network error. Check console.");
+      setLoading(false);
     }
   }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
