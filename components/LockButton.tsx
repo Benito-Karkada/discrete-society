@@ -9,17 +9,25 @@ export default function LockButton() {
 
   async function doLock() {
     setLoading(true);
-    const res = await fetch("/api/lock", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ locked: true, password: pw }),
-    });
-    setLoading(false);
+    setErr("");
+    try {
+      const res = await fetch("/api/lock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ locked: true, password: pw }),
+      });
+      setLoading(false);
 
-    if (res.ok) window.location.reload();
-    else {
-      const { message } = await res.json();
-      setErr(message);
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        setErr(data.message || "Lock failed");
+      }
+    } catch (e) {
+      console.error("Lock network error", e);
+      setErr("Network error");
+      setLoading(false);
     }
   }
 
@@ -28,7 +36,7 @@ export default function LockButton() {
       {!show ? (
         <button
           onClick={() => setShow(true)}
-          className="bg-red-600 text-white px-3 py-2 rounded"
+          className="bg-red-600 text-white px-3 py-2 rounded shadow"
         >
           Lock Site
         </button>
@@ -39,9 +47,9 @@ export default function LockButton() {
             placeholder="Password"
             value={pw}
             onChange={(e) => setPw(e.target.value)}
-            className="w-full border p-2 rounded mb-2"
+            className="w-full border p-2 mb-2 rounded"
           />
-          {err && <p className="text-red-600 text-sm">{err}</p>}
+          {err && <p className="text-red-600 text-sm mb-2">{err}</p>}
           <button
             disabled={loading}
             onClick={doLock}

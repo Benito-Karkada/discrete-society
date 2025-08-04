@@ -22,42 +22,38 @@ export default function ComingSoon() {
   async function doUnlock() {
     setLoading(true);
     setErr("");
-
     try {
-      console.log("→ Sending unlock request…");
+      console.log("→ Sending unlock…");
       const res = await fetch("/api/lock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locked: false, password: pw }),
       });
-      console.log("← Got response:", res.status);
-
+      console.log("← Unlock status:", res.status);
       setLoading(false);
 
       if (res.ok) {
-        console.log("✔ Unlock succeeded, reloading");
         window.location.reload();
       } else {
         const data = await res.json();
-        console.error("✖ Unlock failed:", data);
-        setErr(data.message || "Incorrect password.");
+        setErr(data.message || "Incorrect password");
       }
-    } catch (err) {
-      console.error("‼ Network or server error:", err);
-      setErr("Network error. Check console.");
+    } catch (e) {
+      console.error("Unlock network error", e);
+      setErr("Network error");
       setLoading(false);
     }
   }
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white">
       <div className="bg-white text-black p-8 rounded shadow max-w-sm w-full text-center">
         <h1 className="text-2xl font-bold mb-4">COMING SOON</h1>
+
         {!signed ? (
           <>
             <div className="flex mb-4 border rounded overflow-hidden">
-              <span className="bg-gray-200 px-3 py-2 text-gray-700">+1</span>
+              <span className="bg-gray-200 px-3 py-2">+1</span>
               <input
                 className="flex-1 p-2"
                 placeholder="Phone number"
@@ -76,7 +72,6 @@ export default function ComingSoon() {
           <p className="text-green-600 mb-4">You're signed up!</p>
         )}
 
-        {/* admin unlock */}
         {!unlock ? (
           <button
             onClick={() => setUnlock(true)}
@@ -91,9 +86,9 @@ export default function ComingSoon() {
               placeholder="Password"
               value={pw}
               onChange={(e) => setPw(e.target.value)}
-              className="w-full border p-2 rounded mb-2"
+              className="w-full border p-2 mb-2 rounded"
             />
-            {err && <p className="text-red-600 text-sm">{err}</p>}
+            {err && <p className="text-red-600 text-sm mb-2">{err}</p>}
             <button
               disabled={loading}
               onClick={doUnlock}

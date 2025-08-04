@@ -8,6 +8,7 @@ export async function GET() {
     return NextResponse.json({ locked: val === "true" });
   } catch (err) {
     console.error("STATUS API error:", err);
+    // On error, default to locked
     return NextResponse.json({ locked: true }, { status: 500 });
   }
 }
