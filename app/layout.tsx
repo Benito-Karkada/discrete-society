@@ -1,22 +1,22 @@
 import type { Metadata } from "next";
-import Navbar from "../components/Navbar";
+import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/context/CartContext";
-import "./globals.css";
-import CartDrawer from "components/CartDrawer";
+import CartDrawer from "@/components/CartDrawer";
 import ComingSoon from "@/components/ComingSoon";
-import LockButton from "components/LockButton";
+import LockButton from "@/components/LockButton";
+import "./globals.css";
+
+async function checkLock() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/status`, {
+    cache: "no-store",
+  });
+  return (await res.json()).locked;
+}
 
 export const metadata: Metadata = {
   title: "Discrete Society",
   description: "Underground streetwear brand.",
 };
-
-async function checkLock() {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const res = await fetch(`${baseUrl}/api/status`, { cache: "no-store" });
-  const data = await res.json();
-  return data.locked;
-}
 
 export default async function RootLayout({
   children,

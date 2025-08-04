@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL!,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-});
+import { getRedis } from "@/lib/redis";
 
 export async function GET() {
-  const state = await redis.get<string>("locked");
-  console.log("Redis locked state:", state);
-  return NextResponse.json({ locked: state !== "false" });
+  const redis = await getRedis();
+  const val = await redis.get("site_locked");
+  return NextResponse.json({ locked: val === "true" });
 }
