@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { getRedis } from "@/lib/redis";
 
 export async function GET() {
-  const redis = await getRedis();
-  const val = await redis.get("site_locked");
-  return NextResponse.json({ locked: val === "true" });
+  try {
+    const redis = await getRedis();
+    const val = await redis.get("site_locked");
+    return NextResponse.json({ locked: val === "true" });
+  } catch (err) {
+    console.error("STATUS API error:", err);
+    return NextResponse.json({ locked: true }, { status: 500 });
+  }
 }

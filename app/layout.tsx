@@ -7,16 +7,15 @@ import LockButton from "@/components/LockButton";
 import "./globals.css";
 
 async function checkLock() {
-  // Always hit your own API route
-  const res = await fetch("/api/status", {
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    // if the API errors, default to locked
-    return true;
+  try {
+    const res = await fetch("/api/status", { cache: "no-store" });
+    if (!res.ok) return true;          // if status route returns 4xx/5xx, treat as locked
+    const { locked } = await res.json();
+    return locked;
+  } catch (e) {
+    console.error("checkLock failed:", e);
+    return true;                       // on any error, default to locked
   }
-  const { locked } = await res.json();
-  return locked;
 }
 
 export const metadata: Metadata = {
