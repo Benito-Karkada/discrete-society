@@ -7,10 +7,16 @@ import LockButton from "@/components/LockButton";
 import "./globals.css";
 
 async function checkLock() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/status`, {
+  // Always hit your own API route
+  const res = await fetch("/api/status", {
     cache: "no-store",
   });
-  return (await res.json()).locked;
+  if (!res.ok) {
+    // if the API errors, default to locked
+    return true;
+  }
+  const { locked } = await res.json();
+  return locked;
 }
 
 export const metadata: Metadata = {
