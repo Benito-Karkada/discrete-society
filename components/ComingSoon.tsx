@@ -33,9 +33,9 @@ export default function ComingSoon() {
       setLoading(false);
 
       if (res.ok) {
-        window.location.replace("/"); // or: window.location.href = "/"
-      }
-      else {
+        // Force a fresh request through middleware
+        window.location.href = "/?t=" + Date.now();
+      } else {
         const data = await res.json();
         setErr(data.message || "Incorrect password");
       }
