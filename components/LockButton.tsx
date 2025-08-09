@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 
 export default function LockButton() {
   const pathname = usePathname();
-  if (pathname === "/coming-soon") return null; // hide on lock page
+  if (pathname === "/coming-soon") return null;
 
   const [show, setShow] = useState(false);
   const [pw, setPw] = useState("");
@@ -23,8 +23,7 @@ export default function LockButton() {
       setLoading(false);
 
       if (res.ok) {
-        // Force fresh request through middleware
-        window.location.href = "/?t=" + Date.now();
+        window.location.assign("/?ts=" + Date.now());
       } else {
         const data = await res.json();
         setErr(data.message || "Lock failed");

@@ -23,18 +23,16 @@ export default function ComingSoon() {
     setLoading(true);
     setErr("");
     try {
-      console.log("→ Sending unlock…");
       const res = await fetch("/api/lock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ locked: false, password: pw }),
       });
-      console.log("← Unlock status:", res.status);
       setLoading(false);
 
       if (res.ok) {
-        // Force a fresh request through middleware
-        window.location.href = "/?t=" + Date.now();
+        // Full network request with cache-busting param
+        window.location.assign("/?ts=" + Date.now());
       } else {
         const data = await res.json();
         setErr(data.message || "Incorrect password");
