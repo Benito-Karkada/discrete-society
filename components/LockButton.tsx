@@ -1,7 +1,11 @@
 "use client";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function LockButton() {
+  const pathname = usePathname();
+  if (pathname === "/coming-soon") return null; // hide on lock page
+
   const [show, setShow] = useState(false);
   const [pw, setPw] = useState("");
   const [err, setErr] = useState("");

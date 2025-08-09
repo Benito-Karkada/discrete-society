@@ -33,8 +33,9 @@ export default function ComingSoon() {
       setLoading(false);
 
       if (res.ok) {
-        window.location.reload();
-      } else {
+        window.location.replace("/"); // or: window.location.href = "/"
+      }
+      else {
         const data = await res.json();
         setErr(data.message || "Incorrect password");
       }
