@@ -11,7 +11,8 @@ export default function Lookbook() {
     "/lookbook/look4.jpg",
     "/lookbook/look5.jpg",
     "/lookbook/look6.jpg",
-    "/lookbook/look7.jpg"
+    "/lookbook/look7.jpg",
+    "/lookbook/look8.jpg"
   ];
 
   // Add fade/scale animation when images scroll into view

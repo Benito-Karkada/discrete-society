@@ -31,9 +31,6 @@ export default function Navbar() {
         <Link href="/policy" className="hover:text-gray-400">
           Policies
         </Link>
-        <Link href="/about" className="hover:text-gray-400">
-          About
-        </Link>
         <button
           className="relative hover:text-gray-400 active:text-gray-600 transition"
           onClick={toggleCartOpen}
