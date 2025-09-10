@@ -73,6 +73,8 @@ export default function ClientProductDetail({ product }: { product: Product }) {
     return sizes ? Array.from(sizes)[0] : sizeList[0];
   });
 
+  const [selectedImage, setSelectedImage] = useState<string>(images[0]);
+
   // whenever color changes, pick a valid size
   useEffect(() => {
     const sizes = availabilityMap.get(selColor);
@@ -96,15 +98,42 @@ export default function ClientProductDetail({ product }: { product: Product }) {
 
   return (
     <div className="flex flex-col md:flex-row gap-12">
-      {/* Image */}
+      {/* Image Gallery */}
       <div className="flex-1">
-        <Image
-          src={images[0]}
-          alt={product.title}
-          width={500}
-          height={500}
-          className="rounded bg-gray-800"
-        />
+        {/* Main image */}
+        <div className="mb-4">
+          <Image
+            src={selectedImage}
+            alt={product.title}
+            width={600}
+            height={600}
+            className="rounded bg-gray-800 object-contain w-full h-auto"
+          />
+        </div>
+        {/* Thumbnails */}
+        {images.length > 1 && (
+          <div className="flex gap-2 flex-wrap">
+            {images.map((img, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedImage(img)}
+                className={`border rounded p-1 ${
+                  selectedImage === img
+                    ? "border-white"
+                    : "border-gray-700 opacity-70 hover:opacity-100"
+                }`}
+              >
+                <Image
+                  src={img}
+                  alt={`${product.title} ${i + 1}`}
+                  width={80}
+                  height={80}
+                  className="object-contain"
+                />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Controls */}
@@ -112,21 +141,27 @@ export default function ClientProductDetail({ product }: { product: Product }) {
         <h1 className="text-3xl font-bold mb-2">{product.title}</h1>
         <p className="mb-6 text-gray-400">{product.description}</p>
 
-        {/* Color */}
-        <div className="mb-4">
-          <label className="block mb-1">Color</label>
-          <select
-            value={selColor}
-            onChange={(e) => setSelColor(e.target.value)}
-            className="w-full p-2 border rounded bg-gray-900 text-white"
-          >
-            {colorList.map((c) => (
-              <option key={c} value={c} disabled={!availabilityMap.get(c)?.size}>
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
+        {/* Color (only if >1 option) */}
+        {colorList.length > 1 && (
+          <div className="mb-4">
+            <label className="block mb-1">Color</label>
+            <select
+              value={selColor}
+              onChange={(e) => setSelColor(e.target.value)}
+              className="w-full p-2 border rounded bg-gray-900 text-white"
+            >
+              {colorList.map((c) => (
+                <option
+                  key={c}
+                  value={c}
+                  disabled={!availabilityMap.get(c)?.size}
+                >
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Size */}
         <div className="mb-4">
@@ -157,9 +192,9 @@ export default function ClientProductDetail({ product }: { product: Product }) {
         <AddToCartButton
           variantId={selectedVariant.id}
           title={product.title}
-          handle={(product as any).handle} 
+          handle={(product as any).handle}
           price={selectedVariant.price.amount}
-          image={images[0]}
+          image={selectedImage}
           size={selSize}
           color={selColor}
         />
